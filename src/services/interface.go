@@ -8,4 +8,5 @@ type YouTubeClient interface {
 
 type VideoService interface {
 	SearchVideos(text string, amount int64) ([]SearchedVideoMeta, error)
+	GetStreamReader() (io.ReadCloser, error)
 }

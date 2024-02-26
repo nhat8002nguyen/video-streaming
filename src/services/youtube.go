@@ -4,9 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 
+	kkdaiYoutube "github.com/kkdai/youtube/v2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
@@ -52,6 +55,12 @@ func (s *YoutubeService) SearchVideos(text string, amount int64) ([]SearchedVide
 				Id:      item.Id.VideoId,
 				Title:   item.Snippet.Title,
 				Website: "youtube",
+				URL:     fmt.Sprintf("https://www.youtube.com/watch?v=%s", item.Id.VideoId),
+				Thumbnail: &videoThumbnail{
+					URL:    item.Snippet.Thumbnails.Default.Url,
+					Width:  item.Snippet.Thumbnails.Default.Width,
+					Height: item.Snippet.Thumbnails.Default.Height,
+				},
 			})
 		case "youtube#channel":
 			channels[item.Id.ChannelId] = item.Snippet.Title
@@ -60,21 +69,22 @@ func (s *YoutubeService) SearchVideos(text string, amount int64) ([]SearchedVide
 		}
 	}
 
-	s.printIDs("Videos", videos)
-	s.printIDs("Channels", channels)
-	s.printIDs("Playlists", playlists)
-
 	return results, nil
 }
 
-// Print the ID and title of each result in a list as well as a name that
-// identifies the list. For example, print the word section name "Videos"
-// above a list of video search results, followed by the video ID and title
-// of each matching video.
-func (s *YoutubeService) printIDs(sectionName string, matches map[string]string) {
-	fmt.Printf("%v:\n", sectionName)
-	for id, title := range matches {
-		fmt.Printf("[%v] %v\n", id, title)
+func (c *YoutubeService) GetStreamReader() (io.ReadCloser, error) {
+	videoClient := kkdaiYoutube.Client{
+		HTTPClient: &http.Client{},
 	}
-	fmt.Printf("\n\n")
+	video, err := videoClient.GetVideo("https://www.youtube.com/watch?v=shLUsd7kQCI")
+	if err != nil {
+		panic(err)
+	}
+
+	// Typically youtube only provides separate streams for video and audio.
+	// If you want audio and video combined, take a look a the downloader package.
+	formats := video.Formats.Quality("medium")
+	reader, _, err := videoClient.GetStream(video, &formats[0])
+
+	return reader, err
 }

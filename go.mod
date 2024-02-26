@@ -21,6 +21,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.1 // indirect
+	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kkdai/youtube/v2 v2.10.0 // indirect
 	go.opencensus.io v0.24.0 // indirect

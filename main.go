@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"video-streaming/src/apis"
@@ -26,7 +27,9 @@ func init() {
 
 func main() {
 	http.HandleFunc("/search", videoAPI.SearchVideos)
+	http.HandleFunc("/audio-ws", videoAPI.HandleStreamWs)
 
+	fmt.Println("Starting server on port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
